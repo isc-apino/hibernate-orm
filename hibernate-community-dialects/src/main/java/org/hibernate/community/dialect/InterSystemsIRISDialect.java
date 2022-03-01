@@ -37,6 +37,8 @@ import java.util.Locale;
 import org.hibernate.LockMode;
 import org.hibernate.dialect.DatabaseVersion;
 import org.hibernate.dialect.function.CastingConcatFunction;
+import org.hibernate.dialect.sequence.NoSequenceSupport;
+import org.hibernate.dialect.sequence.SequenceSupport;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.query.spi.Limit;
 import org.hibernate.query.spi.QueryEngine;
@@ -396,7 +398,7 @@ public class InterSystemsIRISDialect extends Dialect {
 	public boolean hasSelfReferentialForeignKeyBug() {
 		return true;
 	}
-	
+
 	// IDENTITY support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	@Override
@@ -407,8 +409,8 @@ public class InterSystemsIRISDialect extends Dialect {
 	// SEQUENCE support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	@Override
-	public boolean supportsSequences() {
-		return false;
+	public SequenceSupport getSequenceSupport() {
+		return NoSequenceSupport.INSTANCE;
 	}
 
 // It really does support sequences, but InterSystems elects to suggest usage of IDENTITY instead :/
