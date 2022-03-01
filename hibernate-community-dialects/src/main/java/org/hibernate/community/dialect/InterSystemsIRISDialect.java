@@ -122,7 +122,23 @@ public class InterSystemsIRISDialect extends Dialect {
 		}
 
 		@Override
+		public boolean supportsLimitOffset() {
+			return false;
+		}
+
+		@Override
+		public boolean supportsVariableLimit() {
+			return true;
+		}
+
+		@Override
 		public boolean bindLimitParametersFirst() {
+			return true;
+		}
+
+		@Override
+		public boolean useMaxForLimit() {
+			// Does the LIMIT clause take a "maximum" row number instead of a total number of returned rows?
 			return true;
 		}
 	};
@@ -478,76 +494,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		}
 		else {
 			return new SelectLockingStrategy( lockable, lockMode );
-		}
-	}
-
-	// LIMIT support (ala TOP) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	@Override
-	public LimitHandler getLimitHandler() {
-		//if ( isLegacyLimitHandlerBehaviorEnabled() ) {
-		//	return super.getLimitHandler();
-		//}
-		return limitHandler;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean supportsLimit() {
-		return true;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean supportsLimitOffset() {
-		return false;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean supportsVariableLimit() {
-		return true;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean bindLimitParametersFirst() {
-		// Does the LIMIT clause come at the start of the SELECT statement, rather than at the end?
-		return true;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public boolean useMaxForLimit() {
-		// Does the LIMIT clause take a "maximum" row number instead of a total number of returned rows?
-		return true;
-	}
-
-	// adapted from IRISLimitHandler.processSql()
-	@Override
-	@SuppressWarnings("deprecation")
-	public String getLimitString(String sql, boolean hasOffset) {
-		// This does not support the InterSystems IRIS SQL 'DISTINCT BY (comma-list)'
-		// extensions, but this extension is not supported through Hibernate anyway.
-		String lowersql = sql.toLowerCase( Locale.ROOT );
-		final int selectIndex = lowersql.indexOf( "select" );
-
-		if (hasOffset) {
-			// insert clause after SELECT
-			return new StringBuilder( sql.length() + 27 )
-					.append( sql )
-					.insert( selectIndex + 6, " %ROWOFFSET ? %ROWLIMIT ? " )
-					.toString();
-		}
-		else {
-			// insert clause after SELECT (and DISTINCT, if present)
-			final int selectDistinctIndex = lowersql.indexOf( "select distinct" );
-			final int insertionPoint = selectIndex + (selectDistinctIndex == selectIndex ? 15 : 6);
-
-			return new StringBuilder( sql.length() + 8 )
-					.append( sql )
-					.insert( insertionPoint, " TOP ? " )
-					.toString();
 		}
 	}
 
