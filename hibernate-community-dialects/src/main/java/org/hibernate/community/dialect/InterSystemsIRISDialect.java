@@ -78,6 +78,7 @@ import org.hibernate.persister.entity.Lockable;
 import org.hibernate.query.sqm.function.JdbcEscapeFunctionDescriptor;
 import org.hibernate.sql.InterSystemsIRISJoinFragment;
 import org.hibernate.sql.JoinFragment;
+import org.hibernate.type.BasicTypeRegistry;
 import org.hibernate.type.StandardBasicTypes;
 
 public class InterSystemsIRISDialect extends Dialect {
@@ -144,13 +145,15 @@ public class InterSystemsIRISDialect extends Dialect {
 	public void initializeFunctionRegistry(QueryEngine queryEngine) {
 		super.initializeFunctionRegistry( queryEngine );
 
+		BasicTypeRegistry basicTypeRegistry = queryEngine.getTypeConfiguration().getBasicTypeRegistry();
+
 		queryEngine.getSqmFunctionRegistry().register( "abs", new StandardSQLFunction( "abs" ) );
 		queryEngine.getSqmFunctionRegistry().register( "acos", new JdbcEscapeFunctionDescriptor( "acos", new StandardSQLFunction( "acos", StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "%alphaup", new StandardSQLFunction( "%alphaup", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "ascii", new StandardSQLFunction( "ascii", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "asin", new JdbcEscapeFunctionDescriptor( "asin", new StandardSQLFunction( "asin",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "atan", new JdbcEscapeFunctionDescriptor( "atan", new StandardSQLFunction( "atan",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "bit_length", new SQLFunctionTemplate( StandardBasicTypes.INTEGER, "($length(?1)*8)" ) );
+		queryEngine.getSqmFunctionRegistry().registerPattern( "bit_length", "($length(?1)*8)", basicTypeRegistry.resolve( StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "ceiling", new StandardSQLFunction( "ceiling", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char", new JdbcEscapeFunctionDescriptor( "char", new StandardSQLFunction( "char",  StandardBasicTypes.CHARACTER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "character_length", new StandardSQLFunction( "character_length", StandardBasicTypes.INTEGER ) );
@@ -230,7 +233,7 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "%sqlupper", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%sqlupper(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "sqrt", new JdbcEscapeFunctionDescriptor( "SQRT", new StandardSQLFunction( "SQRT",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "%startswith", new VarArgsSQLFunction( StandardBasicTypes.STRING, "", "%startswith", "" ) );
-		queryEngine.getSqmFunctionRegistry().register( "str", new SQLFunctionTemplate( StandardBasicTypes.STRING, "cast(?1 as char varying)" ) );
+		queryEngine.getSqmFunctionRegistry().registerPattern( "str", "cast(?1 as char varying)", basicTypeRegistry.resolve( StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "string", new VarArgsSQLFunction( StandardBasicTypes.STRING, "string(", ",", ")" ) );
 		// note that %string is deprecated
 		queryEngine.getSqmFunctionRegistry().register( "%string", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%string(", ",", ")" ) );
@@ -248,7 +251,7 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "to_number", new StandardSQLFunction( "tonumber" ) );
 		// TRIM(end_keyword string-expression-1 FROM string-expression-2)
 		// use Hibernate implementation "From" is one of the parameters they pass in position ?3
-		//queryEngine.getSqmFunctionRegistry().register( "trim", new SQLFunctionTemplate(StandardBasicTypes.STRING, "trim(?1 ?2 from ?3)") );
+		//queryEngine.getSqmFunctionRegistry().registerPattern( "trim", "trim(?1 ?2 from ?3)", basicTypeRegistry.resolve( StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "truncate", new JdbcEscapeFunctionDescriptor( "truncate", new StandardSQLFunction( "truncate",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "ucase", new JdbcEscapeFunctionDescriptor( "ucase", new StandardSQLFunction( "ucase",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "upper", new StandardSQLFunction( "upper" ) );
