@@ -313,10 +313,12 @@ public class InterSystemsIRISDialect extends Dialect {
 		registerColumnType( Types.BOOLEAN, "integer" );
 		registerColumnType( Types.BINARY, "varbinary($l)" );
 
-		getDefaultProperties().setProperty( Environment.USE_STREAMS_FOR_BINARY, "false" );
-		getDefaultProperties().setProperty( Environment.STATEMENT_BATCH_SIZE, DEFAULT_BATCH_SIZE );
-
 		getDefaultProperties().setProperty( Environment.USE_SQL_COMMENTS, "false" );
+	}
+
+	@Override
+	public boolean useInputStreamToInsertBlob() {
+		return false;
 	}
 
 	// DDL support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
