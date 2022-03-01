@@ -36,6 +36,7 @@ import java.util.Locale;
 
 import org.hibernate.LockMode;
 import org.hibernate.dialect.DatabaseVersion;
+import org.hibernate.dialect.function.CastingConcatFunction;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.query.spi.Limit;
 import org.hibernate.query.spi.QueryEngine;
@@ -78,6 +79,7 @@ import org.hibernate.persister.entity.Lockable;
 import org.hibernate.query.sqm.function.JdbcEscapeFunctionDescriptor;
 import org.hibernate.sql.InterSystemsIRISJoinFragment;
 import org.hibernate.sql.JoinFragment;
+import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.type.BasicTypeRegistry;
 import org.hibernate.type.StandardBasicTypes;
 
@@ -161,7 +163,15 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "cos", new JdbcEscapeFunctionDescriptor( "cos", new StandardSQLFunction( "cos",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "coalesce", new VarArgsSQLFunction( "coalesce(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "concat", new VarArgsSQLFunction( StandardBasicTypes.STRING, "", "||", "" ) );
+		queryEngine.getSqmFunctionRegistry().register(
+				"concat",
+				new CastingConcatFunction(
+						this,
+						"||",
+						SqlAstNodeRenderingMode.DEFAULT,
+						queryEngine.getTypeConfiguration()
+				)
+		);
 		queryEngine.getSqmFunctionRegistry().register( "convert", new ConvertFunction() );
 		queryEngine.getSqmFunctionRegistry().register( "curdate", new JdbcEscapeFunctionDescriptor( "curdate", new StandardSQLFunction( "curdate",  StandardBasicTypes.DATE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "current_date", new NoArgSQLFunction( "current_date", StandardBasicTypes.DATE, false ) );
