@@ -273,6 +273,14 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "xmlelement", new VarArgsSQLFunction( StandardBasicTypes.STRING, "xmlelement(", ",", ")" ) );
 		// xmlforest requires a new kind of function constructor
 		queryEngine.getSqmFunctionRegistry().register( "year", new JdbcEscapeFunctionDescriptor( "year", new StandardSQLFunction( "year",  StandardBasicTypes.INTEGER ) ) );
+
+
+		queryEngine.getSqmFunctionRegistry().register( "str", new VarArgsSQLFunction( StandardBasicTypes.STRING, "str(", ",", ")" ) );
+		//new overwrites
+		queryEngine.getSqmFunctionRegistry().register( "year", new StandardSQLFunction( "year", StandardBasicTypes.INTEGER ) );
+		queryEngine.getSqmFunctionRegistry().register( "sqrt", new StandardSQLFunction( "sqrt", StandardBasicTypes.DOUBLE ) );
+		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log10", new StandardSQLFunction( "log10",  StandardBasicTypes.DOUBLE ) ) );
+		queryEngine.getSqmFunctionRegistry().register( "current_timestamp", new NoArgSQLFunction( "current_timestamp", StandardBasicTypes.TIMESTAMP, false ) );
 	}
 
 	protected final void commonRegistration() {
@@ -309,15 +317,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		getDefaultProperties().setProperty( Environment.STATEMENT_BATCH_SIZE, DEFAULT_BATCH_SIZE );
 
 		getDefaultProperties().setProperty( Environment.USE_SQL_COMMENTS, "false" );
-	}
-
-	protected final void queryEngine.getSqmFunctionRegistry().registers() {
-		this.queryEngine.getSqmFunctionRegistry().register( "str", new VarArgsSQLFunction( StandardBasicTypes.STRING, "str(", ",", ")" ) );
-		//new overwrites
-		queryEngine.getSqmFunctionRegistry().register( "year", new StandardSQLFunction( "year", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "sqrt", new StandardSQLFunction( "sqrt", StandardBasicTypes.DOUBLE ) );
-		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log10", new StandardSQLFunction( "log10",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "current_timestamp", new NoArgSQLFunction( "current_timestamp", StandardBasicTypes.TIMESTAMP, false ) );
 	}
 
 	// DDL support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
