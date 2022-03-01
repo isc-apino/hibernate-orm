@@ -35,9 +35,11 @@ import java.sql.Types;
 import java.util.Locale;
 
 import org.hibernate.LockMode;
-import org.hibernate.NullPrecedence;
+import org.hibernate.query.spi.Limit;
+import org.hibernate.query.sqm.NullPrecedence;
 import org.hibernate.ScrollMode;
 import org.hibernate.cfg.Environment;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.function.ConditionalParenthesisFunction;
 import org.hibernate.dialect.function.ConvertFunction;
 import org.hibernate.dialect.function.NoArgSQLFunction;
@@ -47,7 +49,7 @@ import org.hibernate.dialect.function.StandardJDBCEscapeFunction;
 import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.dialect.function.VarArgsSQLFunction;
 import org.hibernate.dialect.identity.IdentityColumnSupport;
-import org.hibernate.dialect.identity.InterSystemsIRISIdentityColumnSupport;
+import org.hibernate.community.dialect.identity.InterSystemsIRISIdentityColumnSupport;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.dialect.lock.OptimisticForceIncrementLockingStrategy;
 import org.hibernate.dialect.lock.OptimisticLockingStrategy;
@@ -60,7 +62,6 @@ import org.hibernate.dialect.lock.SelectLockingStrategy;
 import org.hibernate.dialect.lock.UpdateLockingStrategy;
 import org.hibernate.dialect.pagination.AbstractLimitHandler;
 import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.dialect.pagination.LimitHelper;
 import org.hibernate.engine.spi.RowSelection;
 import org.hibernate.exception.internal.InterSystemsIRISSQLExceptionConversionDelegate;
 import org.hibernate.exception.spi.SQLExceptionConversionDelegate;
@@ -80,10 +81,10 @@ public class InterSystemsIRISDialect extends Dialect {
 	private static final LimitHandler IRISLimitHandler = new AbstractLimitHandler() {
 		// adapted from TopLimitHandler
 		@Override
-		public String processSql(String sql, RowSelection selection) {
+		public String processSql(String sql, Limit limit) {
 			// This does not support the InterSystems IRIS SQL 'DISTINCT BY (comma-list)'
 			// extensions, but this extension is not supported through Hibernate anyway.
-			final boolean hasOffset = LimitHelper.hasFirstRow( selection );
+			final boolean hasOffset = hasFirstRow( limit );
 			String lowersql = sql.toLowerCase( Locale.ROOT );
 			final int selectIndex = lowersql.indexOf( "select" );
 
