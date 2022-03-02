@@ -10,22 +10,20 @@ package org.hibernate.community.dialect;
 
 /**
  * A Hibernate dialect for InterSystems IRIS
- *
+ * <p>
  * intended for  Hibernate 5.2+  and jdk 1.8
- *
- *  Hibernate works with intersystems-jdbc-3.2.0.jar, located in the dev\java\lib\JDK18 sub-directory
- *  of the InterSystems IRIS installation directory.
- * 	Hibernate properties example
- * 		hibernate.dialect org.hibernate.dialect.ISCDialect
- *		hibernate.connection.driver_class com.intersystems.jdbc.IRISDriver
- *		hibernate.connection.url jdbc:IRIS://127.0.0.1:1972/USER/*
- *		hibernate.connection.username _SYSTEM*
- *		hibernate.connection.password SYS*
- *   Change items marked by '*' to correspond to your system.
- *
+ * <p>
+ * Hibernate works with intersystems-jdbc-3.2.0.jar, located in the dev\java\lib\JDK18 sub-directory
+ * of the InterSystems IRIS installation directory.
+ * Hibernate properties example
+ * hibernate.dialect org.hibernate.dialect.ISCDialect
+ * hibernate.connection.driver_class com.intersystems.jdbc.IRISDriver
+ * hibernate.connection.url jdbc:IRIS://127.0.0.1:1972/USER/*
+ * hibernate.connection.username _SYSTEM*
+ * hibernate.connection.password SYS*
+ * Change items marked by '*' to correspond to your system.
  *
  * @author Jonathan Levinson, Ralph Vater, Dmitry Umansky
- *
  */
 
 import java.sql.CallableStatement;
@@ -90,7 +88,7 @@ public class InterSystemsIRISDialect extends Dialect {
 			String lowersql = sql.toLowerCase( Locale.ROOT );
 			final int selectIndex = lowersql.indexOf( "select" );
 
-			if (hasOffset) {
+			if ( hasOffset ) {
 				// insert clause after SELECT
 				return new StringBuilder( sql.length() + 27 )
 						.append( sql )
@@ -100,7 +98,7 @@ public class InterSystemsIRISDialect extends Dialect {
 			else {
 				// insert clause after SELECT (and DISTINCT, if present)
 				final int selectDistinctIndex = lowersql.indexOf( "select distinct" );
-				final int insertionPoint = selectIndex + (selectDistinctIndex == selectIndex ? 15 : 6);
+				final int insertionPoint = selectIndex + ( selectDistinctIndex == selectIndex ? 15 : 6 );
 
 				return new StringBuilder( sql.length() + 8 )
 						.append( sql )
@@ -143,13 +141,13 @@ public class InterSystemsIRISDialect extends Dialect {
 	 * Cach&eacute; type mappings.
 	 */
 	public InterSystemsIRISDialect(DatabaseVersion version) {
-		super(version);
+		super( version );
 		commonRegistration();
 		this.limitHandler = IRISLimitHandler;
 	}
 
 	public InterSystemsIRISDialect(DialectResolutionInfo info) {
-		super(info);
+		super( info );
 		commonRegistration();
 		this.limitHandler = IRISLimitHandler;
 	}
@@ -344,16 +342,20 @@ public class InterSystemsIRISDialect extends Dialect {
 		functionRegistry.registerAlternateKey( "ucase", "upper" );
 
 		// timestampadd/diff take keywords as first arg, dateadd/diff take temporal_unit as first arg
-		queryEngine.getSqmFunctionRegistry().register( "dateadd",
-													   new TimestampaddFunction( this, typeConfiguration ) );
-		queryEngine.getSqmFunctionRegistry().register( "datediff",
-													   new TimestampdiffFunction( this, typeConfiguration ) );
+		queryEngine.getSqmFunctionRegistry().register(
+				"dateadd",
+				new TimestampaddFunction( this, typeConfiguration )
+		);
+		queryEngine.getSqmFunctionRegistry().register(
+				"datediff",
+				new TimestampdiffFunction( this, typeConfiguration )
+		);
 
 		// log is natural log in IRIS, so only take 1 arg
 		functionRegistry.namedDescriptorBuilder( "log" )
-				.setInvariantType(basicTypeRegistry.resolve(StandardBasicTypes.DOUBLE))
+				.setInvariantType( basicTypeRegistry.resolve( StandardBasicTypes.DOUBLE ) )
 				.setExactArgumentCount( 1 )
-				.setParameterTypes(NUMERIC)
+				.setParameterTypes( NUMERIC )
 				.register();
 	}
 
@@ -516,34 +518,34 @@ public class InterSystemsIRISDialect extends Dialect {
 	}
 
 	@Override
-	public LockingStrategy getLockingStrategy( Lockable lockable, LockMode lockMode ) {
+	public LockingStrategy getLockingStrategy(Lockable lockable, LockMode lockMode) {
 
 		// Just to make some tests happy, but InterSystems IRIS doesn't really support this.
 		// need to use READ_COMMITTED as isolation level
-		if (LockMode.UPGRADE == lockMode) {
-			return new SelectLockingStrategy(lockable, lockMode);
+		if ( LockMode.UPGRADE == lockMode ) {
+			return new SelectLockingStrategy( lockable, lockMode );
 		}
 
 		// InterSystems InterSystemsIRIS does not current support "SELECT ... FOR UPDATE" syntax...
 		// Set your transaction mode to READ_COMMITTED before using
-		if ( lockMode==LockMode.PESSIMISTIC_FORCE_INCREMENT) {
-			return new PessimisticForceIncrementLockingStrategy( lockable, lockMode);
+		if ( lockMode == LockMode.PESSIMISTIC_FORCE_INCREMENT ) {
+			return new PessimisticForceIncrementLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.PESSIMISTIC_WRITE) {
+		else if ( lockMode == LockMode.PESSIMISTIC_WRITE ) {
 			return lockable.isVersioned()
-					? new PessimisticWriteUpdateLockingStrategy( lockable, lockMode)
-					: new PessimisticWriteSelectLockingStrategy( lockable, lockMode);
+					? new PessimisticWriteUpdateLockingStrategy( lockable, lockMode )
+					: new PessimisticWriteSelectLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.PESSIMISTIC_READ) {
+		else if ( lockMode == LockMode.PESSIMISTIC_READ ) {
 			return lockable.isVersioned()
-					? new PessimisticReadUpdateLockingStrategy( lockable, lockMode)
-					: new PessimisticReadSelectLockingStrategy( lockable, lockMode);
+					? new PessimisticReadUpdateLockingStrategy( lockable, lockMode )
+					: new PessimisticReadSelectLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.OPTIMISTIC) {
-			return new OptimisticLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.OPTIMISTIC ) {
+			return new OptimisticLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.OPTIMISTIC_FORCE_INCREMENT) {
-			return new OptimisticForceIncrementLockingStrategy( lockable, lockMode);
+		else if ( lockMode == LockMode.OPTIMISTIC_FORCE_INCREMENT ) {
+			return new OptimisticForceIncrementLockingStrategy( lockable, lockMode );
 		}
 		else if ( lockMode.greaterThan( LockMode.READ ) ) {
 			return new UpdateLockingStrategy( lockable, lockMode );
@@ -612,7 +614,7 @@ public class InterSystemsIRISDialect extends Dialect {
 				Integer errorCode = JdbcExceptionHelper.extractErrorCode( sqlException );
 				if ( INTEGRITY_VIOLATION_CATEGORIES.contains( errorCode ) ) {
 					String constraintName = getViolatedConstraintNameExtractor()
-									.extractConstraintName( sqlException );
+							.extractConstraintName( sqlException );
 					return new ConstraintViolationException( message, sqlException, sql, constraintName );
 				}
 				else if ( DATA_CATEGORIES.contains( sqlStateClassCode ) ) {
@@ -629,7 +631,11 @@ public class InterSystemsIRISDialect extends Dialect {
 	}
 
 	private static final ViolatedConstraintNameExtractor EXTRACTOR =
-			new TemplatedViolatedConstraintNameExtractor( sqle -> extractUsingTemplate( "constraint (", ") violated", sqle.getMessage() ) );
+			new TemplatedViolatedConstraintNameExtractor( sqle -> extractUsingTemplate(
+					"constraint (",
+					") violated",
+					sqle.getMessage()
+			) );
 
 
 	// Overridden informational metadata ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
