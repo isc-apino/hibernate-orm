@@ -26,7 +26,7 @@ package org.hibernate.community.dialect;
  *
  * @author Jonathan Levinson, Ralph Vater, Dmitry Umansky
  *
- **/
+ */
 
 import java.sql.CallableStatement;
 import java.sql.ResultSet;
@@ -38,7 +38,9 @@ import java.util.Set;
 
 import org.hibernate.LockMode;
 import org.hibernate.dialect.DatabaseVersion;
-import org.hibernate.dialect.function.CastingConcatFunction;
+import org.hibernate.dialect.function.CommonFunctionFactory;
+import org.hibernate.dialect.function.TimestampaddFunction;
+import org.hibernate.dialect.function.TimestampdiffFunction;
 import org.hibernate.dialect.sequence.NoSequenceSupport;
 import org.hibernate.dialect.sequence.SequenceSupport;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
@@ -52,14 +54,6 @@ import org.hibernate.query.spi.QueryEngine;
 import org.hibernate.ScrollMode;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.function.ConditionalParenthesisFunction;
-import org.hibernate.dialect.function.ConvertFunction;
-import org.hibernate.dialect.function.NoArgSQLFunction;
-import org.hibernate.dialect.function.NvlFunction;
-import org.hibernate.dialect.function.SQLFunctionTemplate;
-import org.hibernate.dialect.function.StandardJDBCEscapeFunction;
-import org.hibernate.dialect.function.StandardSQLFunction;
-import org.hibernate.dialect.function.VarArgsSQLFunction;
 import org.hibernate.dialect.identity.IdentityColumnSupport;
 import org.hibernate.community.dialect.identity.InterSystemsIRISIdentityColumnSupport;
 import org.hibernate.dialect.lock.LockingStrategy;
@@ -76,12 +70,13 @@ import org.hibernate.dialect.pagination.AbstractLimitHandler;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.exception.spi.SQLExceptionConversionDelegate;
 import org.hibernate.persister.entity.Lockable;
-import org.hibernate.query.sqm.function.JdbcEscapeFunctionDescriptor;
-import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
+import org.hibernate.query.sqm.function.SqmFunctionRegistry;
 import org.hibernate.type.BasicTypeRegistry;
 import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.spi.TypeConfiguration;
 
 import static org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtractor.extractUsingTemplate;
+import static org.hibernate.query.sqm.produce.function.FunctionParameterType.NUMERIC;
 
 public class InterSystemsIRISDialect extends Dialect {
 
@@ -159,111 +154,207 @@ public class InterSystemsIRISDialect extends Dialect {
 		this.limitHandler = IRISLimitHandler;
 	}
 
+	/**
+	 * Register SQL functions supported by IRIS (see https://docs.intersystems.com/iris20212/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_FUNCTIONS)
+	 *
+	 * ABS 					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ACOS 				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ASCII				- functionFactory.ascii()
+	 * ASIN					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ATAN					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ATAN2				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * CAST					- super.initializeFunctionRegistry()
+	 * CEILING				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * CHAR					-
+	 * CHARACTER_LENGTH 	- super.initializeFunctionRegistry() -> functionFactory.length_characterLength()
+	 * CHAR_INDEX			-
+	 * CHAR_LENGTH 			- alternate key for CHARACTER_LENGTH
+	 * COALESCE				- super.initializeFunctionRegistry() -> functionFactory.coalesce()
+	 * CONCAT 				- super.initializeFunctionRegistry() -> functionFactory.concat()
+	 * CONVERT				-
+	 * COS 					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * COT					- super.initializeFunctionRegistry() -> functionFactory.trigonometry()
+	 * CURDATE				- functionFactory.nowCurdateCurtime()
+	 * CURRENT_DATE			- super.initializeFunctionRegistry()
+	 * CURRENT_TIME			- super.initializeFunctionRegistry()
+	 * CURRENT_TIMESTAMP	- super.initializeFunctionRegistry()
+	 * CURTIME				- functionFactory.nowCurdateCurtime()
+	 * DATABASE				-
+	 * DATALENGTH			-
+	 * DATE					- functionFactory.date()
+	 * DATEADD				- custom
+	 * DATEDIFF				- custom
+	 * DATENAME				- functionFactory.datepartDatename()
+	 * DATEPART				- functionFactory.datepartDatename()
+	 * DAY					- functionFactory.yearMonthDay()
+	 * DAYNAME				- functionFactory.daynameMonthname()
+	 * DAYOFMONTH			- functionFactory.dayofweekmonthyear()
+	 * DAYOFWEEK			- functionFactory.dayofweekmonthyear()
+	 * DAYOFYEAR			- functionFactory.dayofweekmonthyear()
+	 * DECODE				-
+	 * DEGREES				- functionFactory.degrees()
+	 * %EXACT				-
+	 * EXP					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * %EXTERNAL			-
+	 * $EXTRACT				-
+	 * $FIND				-
+	 * FLOOR				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * GETDATE				-
+	 * GETUTCDATE			-
+	 * GREATEST				- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
+	 * HOUR					- functionFactory.hourMinuteSecond()
+	 * IFNULL				- note super.initializeFunctionRegistry() is wrong
+	 * INSTR				- functionFactory.instr()
+	 * %INTERNAL			-
+	 * ISNULL				-
+	 * ISNUMERIC			-
+	 * JSON_ARRAY			-
+	 * JSON_OBJECT			-
+	 * $JUSTIFY				-
+	 * LAST_DAY				- functionFactory.lastDay()
+	 * LAST_IDENTITY 		-
+	 * LCASE				- alternative to lower
+	 * LEAST				- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
+	 * LEFT					- super.initializeFunctionRegistry() -> functionFactory.leftRight()
+	 * LEN					- functionFactory.characterLength_len()
+	 * LENGTH				- functionFactory.characterLength_len()
+	 * $LENGTH				-
+	 * $LIST				-
+	 * $LISTBUILD			-
+	 * $LISTDATA			-
+	 * $LISTFIND			-
+	 * $LISTFROMSTRING		-
+	 * $LISTGET				-
+	 * $LISTLENGTH			-
+	 * $LISTSAME			-
+	 * $LISTTOSTRING		-
+	 * LOG					- custom
+	 * LOG10				- functionFactory.log10()
+	 * LOWER				- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
+	 * LPAD					- super.initializeFunctionRegistry() -> functionFactory.pad()
+	 * LTRIM				- functionFactory.trim1()
+	 * %MINUS				-
+	 * MINUTE				- functionFactory.hourMinuteSecond()
+	 * MOD					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * MONTH				- functionFactory.yearMonthDay()
+	 * MONTHNAME			- functionFactory.daynameMonthname()
+	 * NOW					- functionFactory.nowCurdateCurtime()
+	 * NULLIF				- super.initializeFunctionRegistry -> functionFactory.nullif()
+	 * NVL					-
+	 * %OBJECT				-
+	 * %ODBCIN				-
+	 * %ODBCOUT				-
+	 * %OID					-
+	 * PI					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * $PIECE				-
+	 * %PLUS				-
+	 * POSITION				- functionFactory.position()
+	 * POWER				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * PREDICT				-
+	 * PROBABILITY			-
+	 * QUARTER				- functionFactory.weekQuarter()
+	 * RADIANS				- functionFactory.radians()
+	 * REPEAT				- functionFactory.repeat_replicate()
+	 * REPLACE				- functionFactory.replace()
+	 * REPLICATE			- functionFactory.repeat_replicate()
+	 * REVERSE				- functionFactory.reverse()
+	 * RIGHT				- super.initializeFunctionRegistry() -> functionFactory.leftRight()
+	 * ROUND				- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * RPAD					- super.initializeFunctionRegistry() -> functionFactory.pad()
+	 * RTRIM				- functionFactory.trim1()
+	 * SEARCH_INDEX			-
+	 * SECOND				- functionFactory.hourMinuteSecond()
+	 * SIGN					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * SIN					- super.initializeFunctionRegistry() -> functionFactory.trigonometry
+	 * SPACE				- functionFactory.space()
+	 * %SQLSTRING			-
+	 * %SQLUPPER			-
+	 * SQRT					- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * SQUARE				- functionFactory.square()
+	 * STR					-
+	 * STRING				-
+	 * STUFF				-
+	 * SUBSTR				- functionFactory.substr()
+	 * SUBSTRING			- super.initializeFunctionRegistry() -> functionFactory.substring()
+	 * SYSDATE				- functionFactory.sysdate()
+	 * TAN					- super.initializeFunctionRegistry() -> functionFactory.trigonometry
+	 * TIMESTAMPADD			-
+	 * TIMESTAMPDIFF		-
+	 * TO_CHAR				- functionFactory.toCharNumberDateTimestamp()
+	 * TO_DATE				- functionFactory.toCharNumberDateTimestamp()
+	 * TO_NUMBER			- functionFactory.toCharNumberDateTimestamp()
+	 * TO_POSIXTIME			-
+	 * TO_TIMESTAMP			- functionFactory.toCharNumberDateTimestamp()
+	 * $TRANSLATE			-
+	 * TRIM					- super.initializeFunctionRegistry()
+	 * TRUNCATE				- functionFactory.truncate()
+	 * %TRUNCATE			-
+	 * $TSQL_NEWID
+	 * UCASE				- alternative to upper
+	 * UNIX_TIMESTAMP		-
+	 * UPPER				- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
+	 * USER					-
+	 * WEEK					- functionFactory.yearMonthDay()
+	 * XMLCONCAT			-
+	 * XMLELEMENT			-
+	 * XMLFOREST			-
+	 * YEAR					- functionFactory.yearMonthDay()
+	 */
 	@Override
 	public void initializeFunctionRegistry(QueryEngine queryEngine) {
-		// is it a problem that super.initializeFunctionRegistry register functions we don't support?
-		// 	math() registers "ln"
 		super.initializeFunctionRegistry( queryEngine );
 
-		BasicTypeRegistry basicTypeRegistry = queryEngine.getTypeConfiguration().getBasicTypeRegistry();
+		final BasicTypeRegistry basicTypeRegistry = queryEngine.getTypeConfiguration().getBasicTypeRegistry();
+		final TypeConfiguration typeConfiguration = queryEngine.getTypeConfiguration();
+		final CommonFunctionFactory functionFactory = new CommonFunctionFactory( queryEngine );
+		final SqmFunctionRegistry functionRegistry = queryEngine.getSqmFunctionRegistry();
 
+		// register common functions not registered by super.initializeFunctionRegistry()
+		functionFactory.ascii();
+		functionFactory.nowCurdateCurtime();
+		functionFactory.date();
+		functionFactory.datepartDatename();
+		functionFactory.yearMonthDay();
+		functionFactory.daynameMonthname();
+		functionFactory.dayofweekmonthyear();
+		functionFactory.degrees();
+		functionFactory.hourMinuteSecond();
+		functionFactory.instr();
+		functionFactory.lastDay();
+		functionFactory.characterLength_len();
+		functionFactory.log10();
+		functionFactory.trim1();
+		functionFactory.weekQuarter();
+		functionFactory.radians();
+		functionFactory.repeat_replicate();
+		functionFactory.reverse();
+		functionFactory.space();
+		functionFactory.square();
+		functionFactory.substr();
+		functionFactory.sysdate();
+		functionFactory.toCharNumberDateTimestamp();
+		functionFactory.truncate();
 
+		// register native support for emulated functions
+		functionFactory.position();
 
-		queryEngine.getSqmFunctionRegistry().register( "%alphaup", new StandardSQLFunction( "%alphaup", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "ascii", new StandardSQLFunction( "ascii", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().registerPattern( "bit_length", "($length(?1)*8)", basicTypeRegistry.resolve( StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "char", new JdbcEscapeFunctionDescriptor( "char", new StandardSQLFunction( "char",  StandardBasicTypes.CHARACTER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "char_length", new StandardSQLFunction( "char_length", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "convert", new ConvertFunction() );
-		queryEngine.getSqmFunctionRegistry().register( "curdate", new JdbcEscapeFunctionDescriptor( "curdate", new StandardSQLFunction( "curdate",  StandardBasicTypes.DATE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "current_date", new NoArgSQLFunction( "current_date", StandardBasicTypes.DATE, false ) );
-		queryEngine.getSqmFunctionRegistry().register( "current_time", new NoArgSQLFunction( "current_time", StandardBasicTypes.TIME, false ) );
-		queryEngine.getSqmFunctionRegistry().register( "current_timestamp", new ConditionalParenthesisFunction( "current_timestamp", StandardBasicTypes.TIMESTAMP ) );
-		queryEngine.getSqmFunctionRegistry().register( "curtime", new JdbcEscapeFunctionDescriptor( "curtime", new StandardSQLFunction( "curtime",  StandardBasicTypes.TIME ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "database", new JdbcEscapeFunctionDescriptor( "database", new StandardSQLFunction( "database",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "datename", new VarArgsSQLFunction( StandardBasicTypes.STRING, "datename(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "datepart", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "datepart(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "day", new StandardSQLFunction( "day", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "dayname", new JdbcEscapeFunctionDescriptor( "dayname", new StandardSQLFunction( "dayname",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "dayofmonth", new JdbcEscapeFunctionDescriptor( "dayofmonth", new StandardSQLFunction( "dayofmonth",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "dayofweek", new JdbcEscapeFunctionDescriptor( "dayofweek", new StandardSQLFunction( "dayofweek",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "dayofyear", new JdbcEscapeFunctionDescriptor( "dayofyear", new StandardSQLFunction( "dayofyear",  StandardBasicTypes.INTEGER ) ) );
-		// is it necessary to register %exact since it can only appear in a where clause?
-		queryEngine.getSqmFunctionRegistry().register( "%exact", new StandardSQLFunction( "%exact", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "%external", new StandardSQLFunction( "%external", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "$extract", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "$extract(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$find", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "$find(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "getdate", new StandardSQLFunction( "getdate", StandardBasicTypes.TIMESTAMP ) );
-		queryEngine.getSqmFunctionRegistry().register( "hour", new JdbcEscapeFunctionDescriptor( "hour", new StandardSQLFunction( "hour",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "ifnull", new VarArgsSQLFunction( "ifnull(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "%internal", new StandardSQLFunction( "%internal" ) );
-		queryEngine.getSqmFunctionRegistry().register( "isnull", new VarArgsSQLFunction( "isnull(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "isnumeric", new StandardSQLFunction( "isnumeric", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "lcase", new JdbcEscapeFunctionDescriptor( "lcase", new StandardSQLFunction( "lcase",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "len", new StandardSQLFunction( "len", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "$length", new VarArgsSQLFunction( "$length(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$list", new VarArgsSQLFunction( "$list(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$listdata", new VarArgsSQLFunction( "$listdata(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$listfind", new VarArgsSQLFunction( "$listfind(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$listget", new VarArgsSQLFunction( "$listget(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "$listlength", new StandardSQLFunction( "$listlength", StandardBasicTypes.INTEGER ) );
-		// alias locate to $FIND
-		queryEngine.getSqmFunctionRegistry().register( "locate", new StandardSQLFunction( "$FIND", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "log", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "ltrim", new StandardSQLFunction( "ltrim" ) );
-		queryEngine.getSqmFunctionRegistry().register( "minute", new JdbcEscapeFunctionDescriptor( "minute", new StandardSQLFunction( "minute",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "month", new JdbcEscapeFunctionDescriptor( "month", new StandardSQLFunction( "month",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "monthname", new JdbcEscapeFunctionDescriptor( "monthname", new StandardSQLFunction( "monthname",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "now", new JdbcEscapeFunctionDescriptor( "monthname", new StandardSQLFunction( "monthname",  StandardBasicTypes.TIMESTAMP ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "nvl", new NvlFunction() );
-		queryEngine.getSqmFunctionRegistry().register( "%odbcin", new StandardSQLFunction( "%odbcin" ) );
-		queryEngine.getSqmFunctionRegistry().register( "%odbcout", new StandardSQLFunction( "%odbcin" ) );
-		queryEngine.getSqmFunctionRegistry().register( "%pattern", new VarArgsSQLFunction( StandardBasicTypes.STRING, "", "%pattern", "" ) );
-		queryEngine.getSqmFunctionRegistry().register( "pi", new JdbcEscapeFunctionDescriptor( "pi", new StandardSQLFunction( "pi",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "$piece", new VarArgsSQLFunction( StandardBasicTypes.STRING, "$piece(", ",", ")" ) );
-		// use position function instead of aliasing
-		queryEngine.getSqmFunctionRegistry().register( "position", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "position(", " in ", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "quarter", new JdbcEscapeFunctionDescriptor( "quarter", new StandardSQLFunction( "quarter",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "repeat", new VarArgsSQLFunction( StandardBasicTypes.STRING, "repeat(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "replicate", new VarArgsSQLFunction( StandardBasicTypes.STRING, "replicate(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "rtrim", new StandardSQLFunction( "rtrim", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "second", new JdbcEscapeFunctionDescriptor( "second", new StandardSQLFunction( "second",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "space", new StandardSQLFunction( "space", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "%sqlstring", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%sqlstring(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "%sqlupper", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%sqlupper(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "%startswith", new VarArgsSQLFunction( StandardBasicTypes.STRING, "", "%startswith", "" ) );
-		queryEngine.getSqmFunctionRegistry().registerPattern( "str", "cast(?1 as char varying)", basicTypeRegistry.resolve( StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "string", new VarArgsSQLFunction( StandardBasicTypes.STRING, "string(", ",", ")" ) );
-		// note that %string is deprecated
-		queryEngine.getSqmFunctionRegistry().register( "%string", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%string(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "substr", new VarArgsSQLFunction( StandardBasicTypes.STRING, "substr(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "sysdate", new NoArgSQLFunction( "sysdate", StandardBasicTypes.TIMESTAMP, false ) );
-		queryEngine.getSqmFunctionRegistry().register( "tochar", new VarArgsSQLFunction( StandardBasicTypes.STRING, "tochar(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "to_char", new VarArgsSQLFunction( StandardBasicTypes.STRING, "to_char(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "todate", new VarArgsSQLFunction( StandardBasicTypes.STRING, "todate(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "to_date", new VarArgsSQLFunction( StandardBasicTypes.STRING, "todate(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "tonumber", new StandardSQLFunction( "tonumber" ) );
-		queryEngine.getSqmFunctionRegistry().register( "to_number", new StandardSQLFunction( "tonumber" ) );
-		queryEngine.getSqmFunctionRegistry().register( "truncate", new JdbcEscapeFunctionDescriptor( "truncate", new StandardSQLFunction( "truncate",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "ucase", new JdbcEscapeFunctionDescriptor( "ucase", new StandardSQLFunction( "ucase",  StandardBasicTypes.STRING ) ) );
-		// %upper is deprecated
-		queryEngine.getSqmFunctionRegistry().register( "%upper", new StandardSQLFunction( "%upper" ) );
-		queryEngine.getSqmFunctionRegistry().register( "user", new JdbcEscapeFunctionDescriptor( "user", new StandardSQLFunction( "user",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "week", new JdbcEscapeFunctionDescriptor( "user", new StandardSQLFunction( "user",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "xmlconcat", new VarArgsSQLFunction( StandardBasicTypes.STRING, "xmlconcat(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "xmlelement", new VarArgsSQLFunction( StandardBasicTypes.STRING, "xmlelement(", ",", ")" ) );
-		// xmlforest requires a new kind of function constructor
-		queryEngine.getSqmFunctionRegistry().register( "year", new JdbcEscapeFunctionDescriptor( "year", new StandardSQLFunction( "year",  StandardBasicTypes.INTEGER ) ) );
+		// register alternate keys of common functions
+		functionRegistry.registerAlternateKey( "char_length", "character_length" );
+		functionRegistry.registerAlternateKey( "lcase", "lower" );
+		functionRegistry.registerAlternateKey( "ucase", "upper" );
 
+		// timestampadd/diff take keywords as first arg, dateadd/diff take temporal_unit as first arg
+		queryEngine.getSqmFunctionRegistry().register( "dateadd",
+													   new TimestampaddFunction( this, typeConfiguration ) );
+		queryEngine.getSqmFunctionRegistry().register( "datediff",
+													   new TimestampdiffFunction( this, typeConfiguration ) );
 
-		queryEngine.getSqmFunctionRegistry().register( "str", new VarArgsSQLFunction( StandardBasicTypes.STRING, "str(", ",", ")" ) );
-		//new overwrites
-		queryEngine.getSqmFunctionRegistry().register( "year", new StandardSQLFunction( "year", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "sqrt", new StandardSQLFunction( "sqrt", StandardBasicTypes.DOUBLE ) );
-		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log10", new StandardSQLFunction( "log10",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "current_timestamp", new NoArgSQLFunction( "current_timestamp", StandardBasicTypes.TIMESTAMP, false ) );
+		// log is natural log in IRIS, so only take 1 arg
+		functionRegistry.namedDescriptorBuilder( "log" )
+				.setInvariantType(basicTypeRegistry.resolve(StandardBasicTypes.DOUBLE))
+				.setExactArgumentCount( 1 )
+				.setParameterTypes(NUMERIC)
+				.register();
 	}
 
 	protected final void commonRegistration() {
@@ -495,8 +586,8 @@ public class InterSystemsIRISDialect extends Dialect {
 		return " default values";
 	}
 
-	private static final Set<String> DATA_CATEGORIES = new HashSet<String>();
-	private static final Set<Integer> INTEGRITY_VIOLATION_CATEGORIES = new HashSet<Integer>();
+	private static final Set<String> DATA_CATEGORIES = new HashSet<>();
+	private static final Set<Integer> INTEGRITY_VIOLATION_CATEGORIES = new HashSet<>();
 
 	static {
 		DATA_CATEGORIES.add( "22" );
