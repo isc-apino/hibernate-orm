@@ -44,6 +44,8 @@ import org.hibernate.dialect.sequence.SequenceSupport;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.exception.DataException;
+import org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtractor;
+import org.hibernate.exception.spi.ViolatedConstraintNameExtractor;
 import org.hibernate.internal.util.JdbcExceptionHelper;
 import org.hibernate.query.spi.Limit;
 import org.hibernate.query.spi.QueryEngine;
@@ -73,13 +75,13 @@ import org.hibernate.dialect.lock.UpdateLockingStrategy;
 import org.hibernate.dialect.pagination.AbstractLimitHandler;
 import org.hibernate.dialect.pagination.LimitHandler;
 import org.hibernate.exception.spi.SQLExceptionConversionDelegate;
-import org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtracter;
-import org.hibernate.exception.spi.ViolatedConstraintNameExtracter;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.query.sqm.function.JdbcEscapeFunctionDescriptor;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.type.BasicTypeRegistry;
 import org.hibernate.type.StandardBasicTypes;
+
+import static org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtractor.extractUsingTemplate;
 
 public class InterSystemsIRISDialect extends Dialect {
 
@@ -560,23 +562,16 @@ public class InterSystemsIRISDialect extends Dialect {
 				}
 			}
 			return null; // allow other delegates the chance to look
-		}
+		};
 	}
 
 	@Override
-	public ViolatedConstraintNameExtracter getViolatedConstraintNameExtracter() {
-		return EXTRACTER;
+	public ViolatedConstraintNameExtractor getViolatedConstraintNameExtractor() {
+		return EXTRACTOR;
 	}
 
-	/**
-	 * The InterSystemsI RIS ViolatedConstraintNameExtracter.
-	 */
-	public static final ViolatedConstraintNameExtracter EXTRACTER = new TemplatedViolatedConstraintNameExtracter() {
-		@Override
-		protected String doExtractConstraintName(SQLException sqle) throws NumberFormatException {
-			return extractUsingTemplate( "constraint (", ") violated", sqle.getMessage() );
-		}
-	};
+	private static final ViolatedConstraintNameExtractor EXTRACTOR =
+			new TemplatedViolatedConstraintNameExtractor( sqle -> extractUsingTemplate( "constraint (", ") violated", sqle.getMessage() ) );
 
 
 	// Overridden informational metadata ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
