@@ -176,7 +176,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "character_length", new StandardSQLFunction( "character_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char_length", new StandardSQLFunction( "char_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "coalesce", new VarArgsSQLFunction( "coalesce(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register(
 				"concat",
 				new CastingConcatFunction(
@@ -231,7 +230,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "month", new JdbcEscapeFunctionDescriptor( "month", new StandardSQLFunction( "month",  StandardBasicTypes.INTEGER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "monthname", new JdbcEscapeFunctionDescriptor( "monthname", new StandardSQLFunction( "monthname",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "now", new JdbcEscapeFunctionDescriptor( "monthname", new StandardSQLFunction( "monthname",  StandardBasicTypes.TIMESTAMP ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "nullif", new VarArgsSQLFunction( "nullif(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "nvl", new NvlFunction() );
 		queryEngine.getSqmFunctionRegistry().register( "%odbcin", new StandardSQLFunction( "%odbcin" ) );
 		queryEngine.getSqmFunctionRegistry().register( "%odbcout", new StandardSQLFunction( "%odbcin" ) );
