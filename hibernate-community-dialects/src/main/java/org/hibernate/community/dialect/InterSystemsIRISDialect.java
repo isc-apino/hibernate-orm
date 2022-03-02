@@ -161,22 +161,20 @@ public class InterSystemsIRISDialect extends Dialect {
 
 	@Override
 	public void initializeFunctionRegistry(QueryEngine queryEngine) {
+		// is it a problem that super.initializeFunctionRegistry register functions we don't support?
+		// 	math() registers "ln"
 		super.initializeFunctionRegistry( queryEngine );
 
 		BasicTypeRegistry basicTypeRegistry = queryEngine.getTypeConfiguration().getBasicTypeRegistry();
 
 
 
-		queryEngine.getSqmFunctionRegistry().register( "acos", new JdbcEscapeFunctionDescriptor( "acos", new StandardSQLFunction( "acos", StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "%alphaup", new StandardSQLFunction( "%alphaup", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "ascii", new StandardSQLFunction( "ascii", StandardBasicTypes.STRING ) );
-		queryEngine.getSqmFunctionRegistry().register( "asin", new JdbcEscapeFunctionDescriptor( "asin", new StandardSQLFunction( "asin",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "atan", new JdbcEscapeFunctionDescriptor( "atan", new StandardSQLFunction( "atan",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().registerPattern( "bit_length", "($length(?1)*8)", basicTypeRegistry.resolve( StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char", new JdbcEscapeFunctionDescriptor( "char", new StandardSQLFunction( "char",  StandardBasicTypes.CHARACTER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "character_length", new StandardSQLFunction( "character_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char_length", new StandardSQLFunction( "char_length", StandardBasicTypes.INTEGER ) );
-		queryEngine.getSqmFunctionRegistry().register( "cos", new JdbcEscapeFunctionDescriptor( "cos", new StandardSQLFunction( "cos",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "coalesce", new VarArgsSQLFunction( "coalesce(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register(
@@ -247,7 +245,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "right", new JdbcEscapeFunctionDescriptor( "right", new StandardSQLFunction( "right",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "rtrim", new StandardSQLFunction( "rtrim", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "second", new JdbcEscapeFunctionDescriptor( "second", new StandardSQLFunction( "second",  StandardBasicTypes.INTEGER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "sin", new JdbcEscapeFunctionDescriptor( "sin", new StandardSQLFunction( "sin",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "space", new StandardSQLFunction( "space", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "%sqlstring", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%sqlstring(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "%sqlupper", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%sqlupper(", ",", ")" ) );
@@ -259,7 +256,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "substr", new VarArgsSQLFunction( StandardBasicTypes.STRING, "substr(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "substring", new VarArgsSQLFunction( StandardBasicTypes.STRING, "substring(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "sysdate", new NoArgSQLFunction( "sysdate", StandardBasicTypes.TIMESTAMP, false ) );
-		queryEngine.getSqmFunctionRegistry().register( "tan", new JdbcEscapeFunctionDescriptor( "tan", new StandardSQLFunction( "tan",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "timestampadd", new JdbcEscapeFunctionDescriptor( "timestampadd", new StandardSQLFunction( "timestampadd",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "timestampdiff", new JdbcEscapeFunctionDescriptor( "timestampdiff", new StandardSQLFunction( "timestampdiff",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "tochar", new VarArgsSQLFunction( StandardBasicTypes.STRING, "tochar(", ",", ")" ) );
