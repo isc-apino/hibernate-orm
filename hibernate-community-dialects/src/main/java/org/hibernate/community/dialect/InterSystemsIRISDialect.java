@@ -213,7 +213,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "isnull", new VarArgsSQLFunction( "isnull(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "isnumeric", new StandardSQLFunction( "isnumeric", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "lcase", new JdbcEscapeFunctionDescriptor( "lcase", new StandardSQLFunction( "lcase",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "left", new JdbcEscapeFunctionDescriptor( "left", new StandardSQLFunction( "left",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "len", new StandardSQLFunction( "len", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "$length", new VarArgsSQLFunction( "$length(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "$list", new VarArgsSQLFunction( "$list(", ",", ")" ) );
@@ -240,7 +239,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "quarter", new JdbcEscapeFunctionDescriptor( "quarter", new StandardSQLFunction( "quarter",  StandardBasicTypes.INTEGER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "repeat", new VarArgsSQLFunction( StandardBasicTypes.STRING, "repeat(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "replicate", new VarArgsSQLFunction( StandardBasicTypes.STRING, "replicate(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "right", new JdbcEscapeFunctionDescriptor( "right", new StandardSQLFunction( "right",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "rtrim", new StandardSQLFunction( "rtrim", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "second", new JdbcEscapeFunctionDescriptor( "second", new StandardSQLFunction( "second",  StandardBasicTypes.INTEGER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "space", new StandardSQLFunction( "space", StandardBasicTypes.STRING ) );
