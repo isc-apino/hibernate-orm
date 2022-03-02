@@ -173,7 +173,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "ascii", new StandardSQLFunction( "ascii", StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().registerPattern( "bit_length", "($length(?1)*8)", basicTypeRegistry.resolve( StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char", new JdbcEscapeFunctionDescriptor( "char", new StandardSQLFunction( "char",  StandardBasicTypes.CHARACTER ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "character_length", new StandardSQLFunction( "character_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char_length", new StandardSQLFunction( "char_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "convert", new ConvertFunction() );
@@ -183,8 +182,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "current_timestamp", new ConditionalParenthesisFunction( "current_timestamp", StandardBasicTypes.TIMESTAMP ) );
 		queryEngine.getSqmFunctionRegistry().register( "curtime", new JdbcEscapeFunctionDescriptor( "curtime", new StandardSQLFunction( "curtime",  StandardBasicTypes.TIME ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "database", new JdbcEscapeFunctionDescriptor( "database", new StandardSQLFunction( "database",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "dateadd", new VarArgsSQLFunction( StandardBasicTypes.TIMESTAMP, "dateadd(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "datediff", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "datediff(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "datename", new VarArgsSQLFunction( StandardBasicTypes.STRING, "datename(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "datepart", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "datepart(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "day", new StandardSQLFunction( "day", StandardBasicTypes.INTEGER ) );
@@ -211,6 +208,7 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "$listfind", new VarArgsSQLFunction( "$listfind(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "$listget", new VarArgsSQLFunction( "$listget(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "$listlength", new StandardSQLFunction( "$listlength", StandardBasicTypes.INTEGER ) );
+		// alias locate to $FIND
 		queryEngine.getSqmFunctionRegistry().register( "locate", new StandardSQLFunction( "$FIND", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "log", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
@@ -225,6 +223,7 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "%pattern", new VarArgsSQLFunction( StandardBasicTypes.STRING, "", "%pattern", "" ) );
 		queryEngine.getSqmFunctionRegistry().register( "pi", new JdbcEscapeFunctionDescriptor( "pi", new StandardSQLFunction( "pi",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "$piece", new VarArgsSQLFunction( StandardBasicTypes.STRING, "$piece(", ",", ")" ) );
+		// use position function instead of aliasing
 		queryEngine.getSqmFunctionRegistry().register( "position", new VarArgsSQLFunction( StandardBasicTypes.INTEGER, "position(", " in ", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "quarter", new JdbcEscapeFunctionDescriptor( "quarter", new StandardSQLFunction( "quarter",  StandardBasicTypes.INTEGER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "repeat", new VarArgsSQLFunction( StandardBasicTypes.STRING, "repeat(", ",", ")" ) );
@@ -240,19 +239,13 @@ public class InterSystemsIRISDialect extends Dialect {
 		// note that %string is deprecated
 		queryEngine.getSqmFunctionRegistry().register( "%string", new VarArgsSQLFunction( StandardBasicTypes.STRING, "%string(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "substr", new VarArgsSQLFunction( StandardBasicTypes.STRING, "substr(", ",", ")" ) );
-		queryEngine.getSqmFunctionRegistry().register( "substring", new VarArgsSQLFunction( StandardBasicTypes.STRING, "substring(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "sysdate", new NoArgSQLFunction( "sysdate", StandardBasicTypes.TIMESTAMP, false ) );
-		queryEngine.getSqmFunctionRegistry().register( "timestampadd", new JdbcEscapeFunctionDescriptor( "timestampadd", new StandardSQLFunction( "timestampadd",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "timestampdiff", new JdbcEscapeFunctionDescriptor( "timestampdiff", new StandardSQLFunction( "timestampdiff",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "tochar", new VarArgsSQLFunction( StandardBasicTypes.STRING, "tochar(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "to_char", new VarArgsSQLFunction( StandardBasicTypes.STRING, "to_char(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "todate", new VarArgsSQLFunction( StandardBasicTypes.STRING, "todate(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "to_date", new VarArgsSQLFunction( StandardBasicTypes.STRING, "todate(", ",", ")" ) );
 		queryEngine.getSqmFunctionRegistry().register( "tonumber", new StandardSQLFunction( "tonumber" ) );
 		queryEngine.getSqmFunctionRegistry().register( "to_number", new StandardSQLFunction( "tonumber" ) );
-		// TRIM(end_keyword string-expression-1 FROM string-expression-2)
-		// use Hibernate implementation "From" is one of the parameters they pass in position ?3
-		//queryEngine.getSqmFunctionRegistry().registerPattern( "trim", "trim(?1 ?2 from ?3)", basicTypeRegistry.resolve( StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "truncate", new JdbcEscapeFunctionDescriptor( "truncate", new StandardSQLFunction( "truncate",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "ucase", new JdbcEscapeFunctionDescriptor( "ucase", new StandardSQLFunction( "ucase",  StandardBasicTypes.STRING ) ) );
 		// %upper is deprecated
