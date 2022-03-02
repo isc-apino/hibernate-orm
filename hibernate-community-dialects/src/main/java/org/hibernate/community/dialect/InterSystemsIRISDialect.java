@@ -577,16 +577,6 @@ public class InterSystemsIRISDialect extends Dialect {
 	// Overridden informational metadata ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 	@Override
-	public boolean supportsEmptyInList() {
-		return false;
-	}
-
-	@Override
-	public boolean areStringComparisonsCaseInsensitive() {
-		return true;
-	}
-
-	@Override
 	public boolean supportsResultSetPositionQueryMethodsOnForwardOnlyCursor() {
 		return false;
 	}
@@ -605,11 +595,6 @@ public class InterSystemsIRISDialect extends Dialect {
 	 */
 	@Override
 	public boolean supportsTupleDistinctCounts() {
-		return false;
-	}
-
-	@Override
-	public boolean supportsTuplesInSubqueries() {
 		return false;
 	}
 
