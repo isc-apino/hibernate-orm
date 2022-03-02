@@ -42,7 +42,6 @@ import org.hibernate.dialect.sequence.SequenceSupport;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.query.spi.Limit;
 import org.hibernate.query.spi.QueryEngine;
-import org.hibernate.query.sqm.NullPrecedence;
 import org.hibernate.ScrollMode;
 import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
@@ -511,26 +510,6 @@ public class InterSystemsIRISDialect extends Dialect {
 	}
 
 	// miscellaneous support ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-	@Override
-	public String renderOrderByElement(String expression, String collation, String order, NullPrecedence nulls) {
-		final String orderBy = super.renderOrderByElement( expression, collation, order, NullPrecedence.NONE );
-
-		if ( (nulls == null)
-				|| (nulls == NullPrecedence.NONE)
-				|| (order == null || ("ASC".equalsIgnoreCase(order)) && (nulls == NullPrecedence.FIRST))
-				|| ("DESC".equalsIgnoreCase(order) && (nulls == NullPrecedence.LAST))
-		) {
-			return orderBy;
-		}
-
-		return String.format(
-				"CASE WHEN %s IS NULL THEN %s END, %s",
-				expression,
-				(nulls == NullPrecedence.FIRST) ? "0 ELSE 1" : "1 ELSE 0",
-				orderBy
-		);
-	}
 
 	@Override
 	public String getLowercaseFunction() {
