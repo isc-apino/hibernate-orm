@@ -176,15 +176,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "character_length", new StandardSQLFunction( "character_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "char_length", new StandardSQLFunction( "char_length", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "cot", new JdbcEscapeFunctionDescriptor( "cot", new StandardSQLFunction( "cot",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register(
-				"concat",
-				new CastingConcatFunction(
-						this,
-						"||",
-						SqlAstNodeRenderingMode.DEFAULT,
-						queryEngine.getTypeConfiguration()
-				)
-		);
 		queryEngine.getSqmFunctionRegistry().register( "convert", new ConvertFunction() );
 		queryEngine.getSqmFunctionRegistry().register( "curdate", new JdbcEscapeFunctionDescriptor( "curdate", new StandardSQLFunction( "curdate",  StandardBasicTypes.DATE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "current_date", new NoArgSQLFunction( "current_date", StandardBasicTypes.DATE, false ) );
@@ -223,7 +214,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		queryEngine.getSqmFunctionRegistry().register( "locate", new StandardSQLFunction( "$FIND", StandardBasicTypes.INTEGER ) );
 		queryEngine.getSqmFunctionRegistry().register( "log", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "log10", new JdbcEscapeFunctionDescriptor( "log", new StandardSQLFunction( "log",  StandardBasicTypes.DOUBLE ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "lower", new StandardSQLFunction( "lower" ) );
 		queryEngine.getSqmFunctionRegistry().register( "ltrim", new StandardSQLFunction( "ltrim" ) );
 		queryEngine.getSqmFunctionRegistry().register( "minute", new JdbcEscapeFunctionDescriptor( "minute", new StandardSQLFunction( "minute",  StandardBasicTypes.INTEGER ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "month", new JdbcEscapeFunctionDescriptor( "month", new StandardSQLFunction( "month",  StandardBasicTypes.INTEGER ) ) );
@@ -265,7 +255,6 @@ public class InterSystemsIRISDialect extends Dialect {
 		//queryEngine.getSqmFunctionRegistry().registerPattern( "trim", "trim(?1 ?2 from ?3)", basicTypeRegistry.resolve( StandardBasicTypes.STRING ) );
 		queryEngine.getSqmFunctionRegistry().register( "truncate", new JdbcEscapeFunctionDescriptor( "truncate", new StandardSQLFunction( "truncate",  StandardBasicTypes.STRING ) ) );
 		queryEngine.getSqmFunctionRegistry().register( "ucase", new JdbcEscapeFunctionDescriptor( "ucase", new StandardSQLFunction( "ucase",  StandardBasicTypes.STRING ) ) );
-		queryEngine.getSqmFunctionRegistry().register( "upper", new StandardSQLFunction( "upper" ) );
 		// %upper is deprecated
 		queryEngine.getSqmFunctionRegistry().register( "%upper", new StandardSQLFunction( "%upper" ) );
 		queryEngine.getSqmFunctionRegistry().register( "user", new JdbcEscapeFunctionDescriptor( "user", new StandardSQLFunction( "user",  StandardBasicTypes.STRING ) ) );
