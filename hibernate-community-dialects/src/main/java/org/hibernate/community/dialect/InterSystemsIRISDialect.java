@@ -32,7 +32,9 @@ import java.sql.CallableStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.hibernate.LockMode;
 import org.hibernate.dialect.DatabaseVersion;
@@ -40,6 +42,9 @@ import org.hibernate.dialect.function.CastingConcatFunction;
 import org.hibernate.dialect.sequence.NoSequenceSupport;
 import org.hibernate.dialect.sequence.SequenceSupport;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
+import org.hibernate.exception.ConstraintViolationException;
+import org.hibernate.exception.DataException;
+import org.hibernate.internal.util.JdbcExceptionHelper;
 import org.hibernate.query.spi.Limit;
 import org.hibernate.query.spi.QueryEngine;
 import org.hibernate.ScrollMode;
@@ -67,7 +72,6 @@ import org.hibernate.dialect.lock.SelectLockingStrategy;
 import org.hibernate.dialect.lock.UpdateLockingStrategy;
 import org.hibernate.dialect.pagination.AbstractLimitHandler;
 import org.hibernate.dialect.pagination.LimitHandler;
-import org.hibernate.exception.internal.InterSystemsIRISSQLExceptionConversionDelegate;
 import org.hibernate.exception.spi.SQLExceptionConversionDelegate;
 import org.hibernate.exception.spi.TemplatedViolatedConstraintNameExtracter;
 import org.hibernate.exception.spi.ViolatedConstraintNameExtracter;
@@ -522,9 +526,41 @@ public class InterSystemsIRISDialect extends Dialect {
 		return " default values";
 	}
 
+	private static final Set<String> DATA_CATEGORIES = new HashSet<String>();
+	private static final Set<Integer> INTEGRITY_VIOLATION_CATEGORIES = new HashSet<Integer>();
+
+	static {
+		DATA_CATEGORIES.add( "22" );
+		DATA_CATEGORIES.add( "21" );
+		DATA_CATEGORIES.add( "02" );
+
+		INTEGRITY_VIOLATION_CATEGORIES.add( 119 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 120 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 121 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 122 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 123 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 124 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 125 );
+		INTEGRITY_VIOLATION_CATEGORIES.add( 127 );
+	}
+
 	@Override
 	public SQLExceptionConversionDelegate buildSQLExceptionConversionDelegate() {
-		return new InterSystemsIRISSQLExceptionConversionDelegate( this );
+		return (sqlException, message, sql) -> {
+			String sqlStateClassCode = JdbcExceptionHelper.extractSqlStateClassCode( sqlException );
+			if ( sqlStateClassCode != null ) {
+				Integer errorCode = JdbcExceptionHelper.extractErrorCode( sqlException );
+				if ( INTEGRITY_VIOLATION_CATEGORIES.contains( errorCode ) ) {
+					String constraintName = getViolatedConstraintNameExtractor()
+									.extractConstraintName( sqlException );
+					return new ConstraintViolationException( message, sqlException, sql, constraintName );
+				}
+				else if ( DATA_CATEGORIES.contains( sqlStateClassCode ) ) {
+					return new DataException( message, sqlException, sql );
+				}
+			}
+			return null; // allow other delegates the chance to look
+		}
 	}
 
 	@Override
