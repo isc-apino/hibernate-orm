@@ -78,8 +78,6 @@ import org.hibernate.hql.spi.id.global.GlobalTemporaryTableBulkIdStrategy;
 import org.hibernate.hql.spi.id.local.AfterUseAction;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.query.sqm.function.JdbcEscapeFunctionDescriptor;
-import org.hibernate.sql.InterSystemsIRISJoinFragment;
-import org.hibernate.sql.JoinFragment;
 import org.hibernate.sql.ast.SqlAstNodeRenderingMode;
 import org.hibernate.type.BasicTypeRegistry;
 import org.hibernate.type.StandardBasicTypes;
@@ -520,12 +518,6 @@ public class InterSystemsIRISDialect extends Dialect {
 	@Override
 	public String getNullColumnString() {
 		return "";
-	}
-
-	@Override
-	public JoinFragment createOuterJoinFragment() {
-		// Create an OuterJoinGenerator for this dialect.
-		return new InterSystemsIRISJoinFragment();
 	}
 
 	@Override
