@@ -155,148 +155,148 @@ public class InterSystemsIRISDialect extends Dialect {
 	/**
 	 * Register SQL functions supported by IRIS (see https://docs.intersystems.com/iris20212/csp/docbook/DocBook.UI.Page.cls?KEY=RSQL_FUNCTIONS)
 	 *
-	 * ABS 					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * ACOS 				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * ASCII				- functionFactory.ascii()
-	 * ASIN					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * ATAN					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * ATAN2				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * CAST					- super.initializeFunctionRegistry()
-	 * CEILING				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * CHAR					-
+	 * ABS 								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ACOS 							- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ASCII							- functionFactory.ascii()
+	 * ASIN								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ATAN								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * ATAN2							- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * CAST								- super.initializeFunctionRegistry()
+	 * CEILING						- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * CHAR								-
 	 * CHARACTER_LENGTH 	- super.initializeFunctionRegistry() -> functionFactory.length_characterLength()
-	 * CHAR_INDEX			-
-	 * CHAR_LENGTH 			- alternate key for CHARACTER_LENGTH
-	 * COALESCE				- super.initializeFunctionRegistry() -> functionFactory.coalesce()
-	 * CONCAT 				- super.initializeFunctionRegistry() -> functionFactory.concat()
-	 * CONVERT				-
-	 * COS 					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * COT					- super.initializeFunctionRegistry() -> functionFactory.trigonometry()
-	 * CURDATE				- functionFactory.nowCurdateCurtime()
-	 * CURRENT_DATE			- super.initializeFunctionRegistry()
-	 * CURRENT_TIME			- super.initializeFunctionRegistry()
+	 * CHAR_INDEX					-
+	 * CHAR_LENGTH 				- alternate key for CHARACTER_LENGTH
+	 * COALESCE						- super.initializeFunctionRegistry() -> functionFactory.coalesce()
+	 * CONCAT 						- super.initializeFunctionRegistry() -> functionFactory.concat()
+	 * CONVERT						-
+	 * COS 								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * COT								- super.initializeFunctionRegistry() -> functionFactory.trigonometry()
+	 * CURDATE						- functionFactory.nowCurdateCurtime()
+	 * CURRENT_DATE				- super.initializeFunctionRegistry()
+	 * CURRENT_TIME				- super.initializeFunctionRegistry()
 	 * CURRENT_TIMESTAMP	- super.initializeFunctionRegistry()
-	 * CURTIME				- functionFactory.nowCurdateCurtime()
-	 * DATABASE				-
-	 * DATALENGTH			-
-	 * DATE					- functionFactory.date()
-	 * DATEADD				- custom
-	 * DATEDIFF				- custom
-	 * DATENAME				- functionFactory.datepartDatename()
-	 * DATEPART				- functionFactory.datepartDatename()
-	 * DAY					- functionFactory.yearMonthDay()
-	 * DAYNAME				- functionFactory.daynameMonthname()
-	 * DAYOFMONTH			- functionFactory.dayofweekmonthyear()
-	 * DAYOFWEEK			- functionFactory.dayofweekmonthyear()
-	 * DAYOFYEAR			- functionFactory.dayofweekmonthyear()
-	 * DECODE				-
-	 * DEGREES				- functionFactory.degrees()
-	 * %EXACT				-
-	 * EXP					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * %EXTERNAL			-
-	 * $EXTRACT				-
-	 * $FIND				-
-	 * FLOOR				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * GETDATE				-
-	 * GETUTCDATE			-
-	 * GREATEST				- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
-	 * HOUR					- functionFactory.hourMinuteSecond()
-	 * IFNULL				- note super.initializeFunctionRegistry() is wrong
-	 * INSTR				- functionFactory.instr()
-	 * %INTERNAL			-
-	 * ISNULL				-
-	 * ISNUMERIC			-
-	 * JSON_ARRAY			-
-	 * JSON_OBJECT			-
-	 * $JUSTIFY				-
-	 * LAST_DAY				- functionFactory.lastDay()
-	 * LAST_IDENTITY 		-
-	 * LCASE				- alternative to lower
-	 * LEAST				- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
-	 * LEFT					- super.initializeFunctionRegistry() -> functionFactory.leftRight()
-	 * LEN					- functionFactory.characterLength_len()
-	 * LENGTH				- functionFactory.characterLength_len()
-	 * $LENGTH				-
-	 * $LIST				-
-	 * $LISTBUILD			-
-	 * $LISTDATA			-
-	 * $LISTFIND			-
+	 * CURTIME						- functionFactory.nowCurdateCurtime()
+	 * DATABASE						-
+	 * DATALENGTH					-
+	 * DATE								- functionFactory.date()
+	 * DATEADD						- custom
+	 * DATEDIFF						- custom
+	 * DATENAME						- functionFactory.datepartDatename()
+	 * DATEPART						- functionFactory.datepartDatename()
+	 * DAY								- functionFactory.yearMonthDay()
+	 * DAYNAME						- functionFactory.daynameMonthname()
+	 * DAYOFMONTH					- functionFactory.dayofweekmonthyear()
+	 * DAYOFWEEK					- functionFactory.dayofweekmonthyear()
+	 * DAYOFYEAR					- functionFactory.dayofweekmonthyear()
+	 * DECODE							-
+	 * DEGREES						- functionFactory.degrees()
+	 * %EXACT							-
+	 * EXP								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * %EXTERNAL					-
+	 * $EXTRACT						-
+	 * $FIND							-
+	 * FLOOR							- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * GETDATE						-
+	 * GETUTCDATE					-
+	 * GREATEST						- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
+	 * HOUR								- functionFactory.hourMinuteSecond()
+	 * IFNULL							- note super.initializeFunctionRegistry() is wrong
+	 * INSTR							- functionFactory.instr()
+	 * %INTERNAL					-
+	 * ISNULL							-
+	 * ISNUMERIC					-
+	 * JSON_ARRAY					-
+	 * JSON_OBJECT				-
+	 * $JUSTIFY						-
+	 * LAST_DAY						- functionFactory.lastDay()
+	 * LAST_IDENTITY			-
+	 * LCASE							- alternative to lower
+	 * LEAST							- super.initializeFunctionRegistry() -> functionFactory.leastGreatest()
+	 * LEFT								- super.initializeFunctionRegistry() -> functionFactory.leftRight()
+	 * LEN								- functionFactory.characterLength_len()
+	 * LENGTH							- functionFactory.characterLength_len()
+	 * $LENGTH						-
+	 * $LIST							-
+	 * $LISTBUILD					-
+	 * $LISTDATA					-
+	 * $LISTFIND					-
 	 * $LISTFROMSTRING		-
-	 * $LISTGET				-
-	 * $LISTLENGTH			-
-	 * $LISTSAME			-
-	 * $LISTTOSTRING		-
-	 * LOG					- custom
-	 * LOG10				- functionFactory.log10()
-	 * LOWER				- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
-	 * LPAD					- super.initializeFunctionRegistry() -> functionFactory.pad()
-	 * LTRIM				- functionFactory.trim1()
-	 * %MINUS				-
-	 * MINUTE				- functionFactory.hourMinuteSecond()
-	 * MOD					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * MONTH				- functionFactory.yearMonthDay()
-	 * MONTHNAME			- functionFactory.daynameMonthname()
-	 * NOW					- functionFactory.nowCurdateCurtime()
-	 * NULLIF				- super.initializeFunctionRegistry -> functionFactory.nullif()
-	 * NVL					-
-	 * %OBJECT				-
-	 * %ODBCIN				-
-	 * %ODBCOUT				-
-	 * %OID					-
-	 * PI					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * $PIECE				-
-	 * %PLUS				-
-	 * POSITION				- functionFactory.position()
-	 * POWER				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * PREDICT				-
-	 * PROBABILITY			-
-	 * QUARTER				- functionFactory.weekQuarter()
-	 * RADIANS				- functionFactory.radians()
-	 * REPEAT				- functionFactory.repeat_replicate()
-	 * REPLACE				- functionFactory.replace()
-	 * REPLICATE			- functionFactory.repeat_replicate()
-	 * REVERSE				- functionFactory.reverse()
-	 * RIGHT				- super.initializeFunctionRegistry() -> functionFactory.leftRight()
-	 * ROUND				- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * RPAD					- super.initializeFunctionRegistry() -> functionFactory.pad()
-	 * RTRIM				- functionFactory.trim1()
-	 * SEARCH_INDEX			-
-	 * SECOND				- functionFactory.hourMinuteSecond()
-	 * SIGN					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * SIN					- super.initializeFunctionRegistry() -> functionFactory.trigonometry
-	 * SPACE				- functionFactory.space()
-	 * %SQLSTRING			-
-	 * %SQLUPPER			-
-	 * SQRT					- super.initializeFunctionRegistry() -> functionFactory.math()
-	 * SQUARE				- functionFactory.square()
-	 * STR					-
-	 * STRING				-
-	 * STUFF				-
-	 * SUBSTR				- functionFactory.substr()
-	 * SUBSTRING			- super.initializeFunctionRegistry() -> functionFactory.substring()
-	 * SYSDATE				- functionFactory.sysdate()
-	 * TAN					- super.initializeFunctionRegistry() -> functionFactory.trigonometry
-	 * TIMESTAMPADD			-
-	 * TIMESTAMPDIFF		-
-	 * TO_CHAR				- functionFactory.toCharNumberDateTimestamp()
-	 * TO_DATE				- functionFactory.toCharNumberDateTimestamp()
-	 * TO_NUMBER			- functionFactory.toCharNumberDateTimestamp()
-	 * TO_POSIXTIME			-
-	 * TO_TIMESTAMP			- functionFactory.toCharNumberDateTimestamp()
-	 * $TRANSLATE			-
-	 * TRIM					- super.initializeFunctionRegistry()
-	 * TRUNCATE				- functionFactory.truncate()
-	 * %TRUNCATE			-
-	 * $TSQL_NEWID
-	 * UCASE				- alternative to upper
-	 * UNIX_TIMESTAMP		-
-	 * UPPER				- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
-	 * USER					-
-	 * WEEK					- functionFactory.yearMonthDay()
-	 * XMLCONCAT			-
-	 * XMLELEMENT			-
-	 * XMLFOREST			-
-	 * YEAR					- functionFactory.yearMonthDay()
+	 * $LISTGET						-
+	 * $LISTLENGTH				-
+	 * $LISTSAME					-
+	 * $LISTTOSTRING			-
+	 * LOG								- custom
+	 * LOG10							- functionFactory.log10()
+	 * LOWER							- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
+	 * LPAD								- super.initializeFunctionRegistry() -> functionFactory.pad()
+	 * LTRIM							- functionFactory.trim1()
+	 * %MINUS							-
+	 * MINUTE							- functionFactory.hourMinuteSecond()
+	 * MOD								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * MONTH							- functionFactory.yearMonthDay()
+	 * MONTHNAME					- functionFactory.daynameMonthname()
+	 * NOW								- functionFactory.nowCurdateCurtime()
+	 * NULLIF							- super.initializeFunctionRegistry -> functionFactory.nullif()
+	 * NVL								-
+	 * %OBJECT						-
+	 * %ODBCIN						-
+	 * %ODBCOUT						-
+	 * %OID								-
+	 * PI									- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * $PIECE							-
+	 * %PLUS							-
+	 * POSITION						- functionFactory.position()
+	 * POWER							- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * PREDICT						-
+	 * PROBABILITY				-
+	 * QUARTER						- functionFactory.weekQuarter()
+	 * RADIANS						- functionFactory.radians()
+	 * REPEAT							- functionFactory.repeat_replicate()
+	 * REPLACE						- functionFactory.replace()
+	 * REPLICATE					- functionFactory.repeat_replicate()
+	 * REVERSE						- functionFactory.reverse()
+	 * RIGHT							- super.initializeFunctionRegistry() -> functionFactory.leftRight()
+	 * ROUND							- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * RPAD								- super.initializeFunctionRegistry() -> functionFactory.pad()
+	 * RTRIM							- functionFactory.trim1()
+	 * SEARCH_INDEX				-
+	 * SECOND							- functionFactory.hourMinuteSecond()
+	 * SIGN								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * SIN								- super.initializeFunctionRegistry() -> functionFactory.trigonometry
+	 * SPACE							- functionFactory.space()
+	 * %SQLSTRING					-
+	 * %SQLUPPER					-
+	 * SQRT								- super.initializeFunctionRegistry() -> functionFactory.math()
+	 * SQUARE							- functionFactory.square()
+	 * STR								-
+	 * STRING							-
+	 * STUFF							-
+	 * SUBSTR							- functionFactory.substr()
+	 * SUBSTRING					- super.initializeFunctionRegistry() -> functionFactory.substring()
+	 * SYSDATE						- functionFactory.sysdate()
+	 * TAN								- super.initializeFunctionRegistry() -> functionFactory.trigonometry
+	 * TIMESTAMPADD				-
+	 * TIMESTAMPDIFF			-
+	 * TO_CHAR						- functionFactory.toCharNumberDateTimestamp()
+	 * TO_DATE						- functionFactory.toCharNumberDateTimestamp()
+	 * TO_NUMBER					- functionFactory.toCharNumberDateTimestamp()
+	 * TO_POSIXTIME				-
+	 * TO_TIMESTAMP				- functionFactory.toCharNumberDateTimestamp()
+	 * $TRANSLATE					-
+	 * TRIM								- super.initializeFunctionRegistry()
+	 * TRUNCATE						- functionFactory.truncate()
+	 * %TRUNCATE					-
+	 * $TSQL_NEWID				-
+	 * UCASE							- alternative to upper
+	 * UNIX_TIMESTAMP			-
+	 * UPPER							- super.initializeFunctionRegistry() -> functionFactory.lowerUpper()
+	 * USER								-
+	 * WEEK								- functionFactory.yearMonthDay()
+	 * XMLCONCAT					-
+	 * XMLELEMENT					-
+	 * XMLFOREST					-
+	 * YEAR								- functionFactory.yearMonthDay()
 	 */
 	@Override
 	public void initializeFunctionRegistry(QueryEngine queryEngine) {
