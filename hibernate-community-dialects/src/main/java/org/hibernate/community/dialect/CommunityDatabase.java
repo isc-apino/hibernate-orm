@@ -67,6 +67,15 @@ public enum CommunityDatabase {
 		}
 	},
 
+	IRIS {
+		@Override
+		public Dialect createDialect(DialectResolutionInfo info ) { return new InterSystemsIRISDialect( info ); }
+		@Override
+		public boolean productNameMatches(String databaseName) {
+			return databaseName.startsWith( "IRIS" );
+		}
+	},
+
 	FIREBIRD {
 		@Override
 		public Dialect createDialect(DialectResolutionInfo info) {

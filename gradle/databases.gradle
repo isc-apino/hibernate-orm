@@ -36,6 +36,16 @@ ext {
                         'jdbc.url'   : 'jdbc:derby:target/tmp/derby/hibernate_orm_test;databaseName=hibernate_orm_test;create=true',
                         'connection.init_sql' : ''
                 ],
+                intersystems_iris : [
+                        'db.dialect' : 'org.hibernate.community.dialect.InterSystemsIRISDialect',
+                        // find appropriate jar in iris container at /usr/irissys/dev/java/lib/1.8/intersystems-jdbc-<VERSION>.jar
+                        // mvn install:install-file -Dfile=intersystems-jdbc-<VERSION>.jar -DgroupId=com.intersystems.jdc -DartifactId=IRISDriver -Dversion=<VERSION> -Dpackaging=jar
+                        'jdbc.driver': 'com.intersystems.jdbc.IRISDriver',
+                        'jdbc.user'  : '_SYSTEM',
+                        'jdbc.pass'  : 'test',
+                        'jdbc.url'   : 'jdbc:IRIS://' + dbHost + ':9091/USER',
+                        'connection.init_sql' : ''
+                ],
                 pgsql : [
                         'db.dialect' : 'org.hibernate.dialect.PostgreSQLDialect',
                         'jdbc.driver': 'org.postgresql.Driver',

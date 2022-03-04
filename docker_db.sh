@@ -1,5 +1,18 @@
 #! /bin/bash
 
+intersystems_iris_2021_2() {
+  docker rm -f iris || true
+  docker run --name iris --publish 9091:1972 --publish 9092:52773 \
+    -e ISC_CPF_MERGE_FILE=/home/irisowner/password.cpf \
+    store/intersystems/iris-community:2021.2.0.649.0 \
+    --before \
+      'echo \
+        "[Startup]
+        PasswordHash=7a3cec966a05048c44238184ba68214c95ac5004f8d76b22656a440b86414eb1d281c9b9c1f50551d68c06623f4a592c3a8a62ce8864f42eefd80d74afe2d1a9,3a30c075366f7a04ecbeb9d135e5c3211d10de6cbc425ad3f762059e6932f388c75905e9f2a9cb52f79dc35dd3e1adbfa05b4f9ef3a6b3b00f0f227924fe2deb,10000,SHA512
+        # test" \
+      > /home/irisowner/password.cpf'
+}
+
 mysql_5_7() {
     docker rm -f mysql || true
     docker run --name mysql -e MYSQL_USER=hibernate_orm_test -e MYSQL_PASSWORD=hibernate_orm_test -e MYSQL_DATABASE=hibernate_orm_test -e MYSQL_ROOT_PASSWORD=hibernate_orm_test -p3306:3306 -d mysql:5.7 --character-set-server=utf8mb4 --collation-server=utf8mb4_bin --skip-character-set-client-handshake --log-bin-trust-function-creators=1

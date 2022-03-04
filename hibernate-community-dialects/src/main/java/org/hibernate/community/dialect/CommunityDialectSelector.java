@@ -38,6 +38,8 @@ public class CommunityDialectSelector implements DialectSelector {
 				return Ingres9Dialect.class;
 			case "Ingres10":
 				return Ingres10Dialect.class;
+			case "InterSystemsIRIS":
+				return InterSystemsIRISDialect.class;
 			case "MimerSQL":
 				return MimerSQLDialect.class;
 			case "RDMSOS2200":
